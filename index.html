@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Password Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+  <div class="bg-white p-6 rounded-lg shadow-lg text-center w-full max-w-md">
+    <h1 class="text-2xl font-semibold mb-6 text-gray-800">Quick Password Generator</h1>
+
+    <!-- Password Box -->
+    <div class="mb-4 p-4 bg-gray-200 rounded-lg text-lg text-gray-800 tracking-wider" id="passwordBox">
+      Your Password
+    </div>
+
+    <!-- Password Length -->
+    <label for="lengthRange" class="block text-gray-600 mb-2 font-medium">
+      Password Length: <span id="lengthLabel" class="font-semibold">12</span>
+    </label>
+    <input type="range" id="lengthRange" min="8" max="16" value="12"
+      class="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer mb-4">
+
+    <!-- Character Options -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <label class="inline-flex items-center">
+        <input type="checkbox" id="uppercase" checked class="form-checkbox text-green-600">
+        <span class="ml-2">Uppercase</span>
+      </label>
+      <label class="inline-flex items-center">
+        <input type="checkbox" id="lowercase" checked class="form-checkbox text-green-600">
+        <span class="ml-2">Lowercase</span>
+      </label>
+      <label class="inline-flex items-center">
+        <input type="checkbox" id="numbers" checked class="form-checkbox text-green-600">
+        <span class="ml-2">Numbers</span>
+      </label>
+      <label class="inline-flex items-center">
+        <input type="checkbox" id="symbols" checked class="form-checkbox text-green-600">
+        <span class="ml-2">Symbols</span>
+      </label>
+    </div>
+
+    <!-- Social Media Platform -->
+    <label for="platform" class="block text-gray-600 mb-2 font-medium">Social Media Platform:</label>
+    <select id="platform" onchange="toggleOtherPlatformInput()"
+      class="w-full p-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600">
+      <option value="" disabled selected>Select a platform</option>
+      <option value="Facebook">Facebook</option>
+      <option value="Twitter">Twitter</option>
+      <option value="Instagram">Instagram</option>
+      <option value="LinkedIn">LinkedIn</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <!-- Other Platform Name Input -->
+    <div id="otherPlatformDiv" class="hidden mb-4">
+      <label for="otherPlatform" class="block text-gray-600 mb-2 font-medium">Specify Platform Name:</label>
+      <input type="text" id="otherPlatform" placeholder="Enter platform name"
+        class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600">
+    </div>
+
+    <!-- User ID -->
+    <label for="userId" class="block text-gray-600 mb-2 font-medium">User ID / Email:</label>
+    <input type="text" id="userId" placeholder="e.g., user@example.com"
+      class="w-full p-2 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600">
+
+    <!-- Generate Button -->
+    <button onclick="generatePassword()"
+      class="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-200 w-full">
+      Generate Password
+    </button>
+
+    <!-- Password History -->
+    <div class="mt-8">
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">Password History</h2>
+      <table id="passwordHistory" class="w-full text-sm text-gray-500 border-collapse">
+        <thead>
+          <tr>
+            <th class="px-4 py-2 border-b">Platform</th>
+            <th class="px-4 py-2 border-b">User ID / Email</th>
+            <th class="px-4 py-2 border-b">Password</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Password history will be populated here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const lengthRange = document.getElementById('lengthRange');
+    const lengthLabel = document.getElementById('lengthLabel');
+    const passwordBox = document.getElementById('passwordBox');
+    const passwordHistory = document.getElementById('passwordHistory').getElementsByTagName('tbody')[0];
+    const platformSelect = document.getElementById('platform');
+    const otherPlatformDiv = document.getElementById('otherPlatformDiv');
+    const otherPlatformInput = document.getElementById('otherPlatform');
+
+    let generatedPasswords = [];
+
+    lengthRange.addEventListener('input', function () {
+      lengthLabel.textContent = lengthRange.value;
+    });
+
+    function toggleOtherPlatformInput() {
+      if (platformSelect.value === 'Other') {
+        otherPlatformDiv.classList.remove('hidden');
+      } else {
+        otherPlatformDiv.classList.add('hidden');
+      }
+    }
+
+    function generatePassword() {
+      const length = lengthRange.value;
+      const uppercase = document.getElementById('uppercase').checked;
+      const lowercase = document.getElementById('lowercase').checked;
+      const numbers = document.getElementById('numbers').checked;
+      const symbols = document.getElementById('symbols').checked;
+      let platform = platformSelect.value;
+      const userId = document.getElementById('userId').value.trim();
+
+      if (platform === 'Other') {
+        platform = otherPlatformInput.value.trim();
+      }
+
+      if (!platform || !userId) {
+        alert("Please fill out all the fields.");
+        return;
+      }
+
+      let charset = '';
+      if (uppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      if (lowercase) charset += "abcdefghijklmnopqrstuvwxyz";
+      if (numbers) charset += "0123456789";
+      if (symbols) charset += "!@#$%^&*()_+";
+
+      let password = '';
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        password += charset[randomIndex];
+      }
+
+      // Save to history
+      generatedPasswords.push({ password, platform, userId });
+      updatePasswordHistory(password, platform, userId);
+
+      // Display generated password
+      passwordBox.textContent = password;
+    }
+
+    function updatePasswordHistory(password, platform, userId) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="px-4 py-2 border-b">${platform}</td>
+        <td class="px-4 py-2 border-b">${userId}</td>
+        <td class="px-4 py-2 border-b font-mono text-green-600">${password}</td>
+      `;
+      passwordHistory.appendChild(row);
+    }
+  </script>
+</body>
+
+</html>
