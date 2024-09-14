@@ -4,5 +4,5 @@ Tech  used <br>
   <li>HTML</li>
   <li>CSS</li>
   <li>JavaScript</li>
-  <li>Tailwind CSS</li>
+  <li>Tailwind CSSS</li>
 </ul>
